@@ -37,10 +37,11 @@ public:
       [this](const sensor_msgs::msg::Image::SharedPtr msg) -> void
       {
         builtin_interfaces::msg::Time now = rclcpp::Clock().now();
-        RCLCPP_INFO(this->get_logger(), "I heard an image [sent: %d] [received: %d] diff: %d",
+        RCLCPP_INFO(this->get_logger(), "I heard an image [sent: %d] [received: %d] diff: %d size: %zu",
           msg->header.stamp.sec,
           now.sec,
-          now.sec - msg->header.stamp.sec);
+          now.sec - msg->header.stamp.sec,
+          msg->width * msg->step);
       };
     // Create a subscription to the topic which can be matched with one or more compatible ROS
     // publishers.

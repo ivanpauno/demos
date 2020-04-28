@@ -43,23 +43,22 @@ public:
     auto publish_message =
       [this]() -> void
       {
-        msg_ = std::make_unique<sensor_msgs::msg::Image>();
-        msg_->width = 1024;
-        msg_->height = 1024;
-        msg_->encoding = "mono8";
-        msg_->is_bigendian = false;
-        msg_->step = 1 * msg_->height;
-        //msg_->data = rosidl_generator_c__uint8__Sequence[1024*1024];
-        for(int i=0; i<(msg_->width * msg_->height);i++) {
-          msg_->data.push_back(0);
-        }
-        msg_->header.stamp = rclcpp::Clock().now();
-        RCLCPP_INFO(this->get_logger(), "Publishing an image [%d]", msg_->header.stamp.sec);
+        msg_.header.stamp = rclcpp::Clock().now();
+        RCLCPP_INFO(this->get_logger(), "Publishing an image [%d]", msg_.header.stamp.sec);
 
         // Put the message into a queue to be processed by the middleware.
         // This call is non-blocking.
         pub_->publish(std::move(msg_));
       };
+    msg_.width = 640;
+    msg_.height = 480;
+    msg_.encoding = "32B";
+    msg_.is_bigendian = false;
+    msg_.step = 32 * msg_.height;
+    //msg_.data = rosidl_generator_c__uint8__Sequence[1024*1024];
+    for(size_t i=0; i < msg_.width * msg_.step;i++) {
+      msg_.data.push_back(0);
+    }
     // Create a publisher with a custom Quality of Service profile.
     rclcpp::QoS qos(rclcpp::KeepLast(10));
     pub_ = this->create_publisher<sensor_msgs::msg::Image>("chatter", qos);
@@ -70,7 +69,7 @@ public:
 
 private:
   size_t count_ = 1;
-  std::unique_ptr<sensor_msgs::msg::Image> msg_;
+  sensor_msgs::msg::Image msg_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
